@@ -10,8 +10,8 @@ var cookies;
 
 
 //TRAMA Y USUARIO
-var user = "Beate T. Hyde";
-var trama = "La Muerte Parte 2";
+var user = "Kyle MacConaill";
+var trama = "Aguatierra";
 
 
 var server = http.createServer(function(request,response){
@@ -49,13 +49,13 @@ var server = http.createServer(function(request,response){
 		function scrapeData(){
 			
 			var indexPost = 0;
-			var indexMaxPost = 1000;
+			var indexMaxPost = 400;
 			
 			//los enlaces estan partidos porque entre ellos dos se añade la página y el post máximo de cada una. 
 			//Es la forma que tiene foractivo de identificar sus html. La primera página de un post no lleva nada, así que
 			//para configuarar esto, deberás mirar la ULTIMA página del tema.
-			var enlacePrimero = 'http://avam-rpg.foroactivo.com/t3587';
-			var enlaceSegundo = '-la-muerte';
+			var enlacePrimero = 'http://avam-rpg.foroactivo.com/t4080';
+			var enlaceSegundo = '-aguatierra';
 			var enlaceTotal = "";
 			
 			while(indexPost<=indexMaxPost){
@@ -68,12 +68,13 @@ var server = http.createServer(function(request,response){
 				
 				osmosis
 				.get(enlaceTotal)
-				.find(".topictitle-info") //de todos los divs con esta clase...
+				.find(".postbody") //de todos los divs con esta clase...
 				.set({
-					'author' : 'strong',
-					'post':'.titulohermoso a@href'}) //rescatame los href del enlace dentro de este otro div
+					'author' : '.postprofile-username a span strong',
+					'post':'.topictitle-info a@href'}) //rescatame los href del enlace dentro de este otro div
 				.data(function(listing) { //método que le pasa el objeto creado y donde puedo hacer cosas. UNO POR CADA COINCIDENCIA
 					lista = listing;
+					console.log(lista);
 					saveResearch(lista);
 					
 				})
@@ -114,6 +115,8 @@ function displayResearch(){
 	//TODO:
 	//ORDENAR EL ARRAY
 	
+	orderCollection();
+	
 	fs.mkdir("output", (err) => {
 	  if (err) {
 		  
@@ -145,5 +148,25 @@ function displayResearch(){
 	setTimeout(function () {
 				console.log("Generado");
 	}, 1000);
+	
+}
+
+function orderCollection(){
+	
+	const l = coleccionPost.length;
+	
+	for(var i = 0 ; i<l ; i++) {
+		for(var j = 0 ; j< l - 1 - i; j++) {
+			var intJ = parseInt(coleccionPost[j].split("#")[1],10);
+			var intSiguiente = parseInt(coleccionPost[j+1].split("#")[1],10);
+			
+			if(intJ>intSiguiente){
+				[ coleccionPost[j], coleccionPost[j+1] ] = [ coleccionPost[j+1], coleccionPost[j] ];
+			}
+		}
+	} 
+	
+	return coleccionPost;
+	
 	
 }
